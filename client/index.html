@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="style.css">
+
+    <title>ELab chat</title>
+</head>
+<body>
+    <header>
+        <h1>ELab chat</h1>
+        <span id="status">OFFLINE</span>
+    </header>
+
+    <main>
+        <ul id="messages"></ul>
+
+        <form id="form">
+            <label for="message">&gt;</label>
+            <input type="text" id="input" required autofocus autocomplete="off">
+        </form>
+    </main>
+
+    <script>
+        const status    = document.getElementById('status');
+        const messages  = document.getElementById('messages');
+        const form      = document.getElementById('form');
+        const input     = document.getElementById('input');
+
+        const ws = new WebSocket('ws://192.168.0.39:3000')
+
+        function setStatus(value) {
+            status.innerHTML = value;
+        }
+
+        function printMessage(value) {
+            const li = document.createElement('li');
+
+            li.innerHTML = value;
+            messages.appendChild(li);
+        }
+
+        form.addEventListener('submit', e=>{
+            e.preventDefault();
+            ws.send(input.value);
+            input.value=''
+        })
+
+        ws.onopen = () => setStatus('ONLINE')
+
+        ws.onclose = () => setStatus('DISCONNECTED')
+
+        ws.onmessage = response => printMessage(response.data)
+    </script>
+</body>
+</html>
